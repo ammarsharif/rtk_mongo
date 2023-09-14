@@ -10,7 +10,7 @@ const {
 } = require('../controllers/taskControllers');
 
 router.post('/createNewTask', createNewTask);
-router.delete('/deleteTask', deleteTask);
+router.post('/deleteTask', deleteTask);
 router.put('/completedTask', isCompleted);
 router.put('/iscompletedTask', isIncomplete);
 router.put('/updateTask', updatedTask);

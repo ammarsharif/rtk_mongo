@@ -27,7 +27,8 @@ const updatedTask = async (req, res) => {
 };
 const deleteTask = async (req, res) => {
   try {
-    const id = req.params.id;
+    console.log('ID', req.body);
+    const id = req.body.id;
     const deletedTask = await taskModel.findByIdAndDelete(id);
     res.status(200).send(deletedTask);
   } catch (err) {
