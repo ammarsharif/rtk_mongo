@@ -1,33 +1,44 @@
 import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { login } from '../../features/reducer/reducer';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
+import { login } from '../../features/reducer/reducer';
 const Login = () => {
-  const dispatch = useDispatch();
   const users = useSelector((state) => state.user.users);
   const initialState = { email: '', pass: '' };
   const [user, setUser] = useState(initialState);
   const navigate = useNavigate();
-  const handleSubmit = (e) => {
+  const dispatch = useDispatch();
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    const matchingUser = users.find(
-      (currentUser) =>
-        currentUser.email === user.email && currentUser.password === user.pass
-    );
-    if (matchingUser) {
-      dispatch(
-        login({
-          name: matchingUser.name,
-          email: matchingUser.email,
-          userId: matchingUser.userId,
-        })
-      );
-      setUser(initialState);
-      navigate('/todo');
-    } else {
-      alert('Invalid Username or Password');
+    if (!user.email || !user.pass) {
+      alert('Please enter both email and password');
+      return;
+    }
+    try {
+      const response = await axios.post('http://localhost:5000/users/login', {
+        email: user.email,
+        password: user.pass,
+      });
+      if (response.status === 200) {
+        const usersFromServer = response.data;
+        console.log(usersFromServer);
+        if (usersFromServer) {
+          dispatch(login(usersFromServer));
+          navigate('/todo');
+        } else {
+          alert('Invalid Username or Password');
+        }
+      } else {
+        console.error('Unexpected status code:', response.status);
+        alert('Error occurred while retrieving user data');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      alert('Error occurred while finding user');
     }
   };
+
   const handleChange = (e) => {
     setUser({ ...user, [e.target.name]: e.target.value });
   };

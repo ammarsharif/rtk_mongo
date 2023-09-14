@@ -9,10 +9,11 @@ function App() {
   const loggedInUser = useSelector((state) => state.user.loggedInUser);
   const location = useLocation();
   const navigate = useNavigate();
+  // console.log(location);
   useEffect(() => {
-    if (location.pathname === '/login' && loggedInUser?.name) {
+    if (location.pathname === '/login' && loggedInUser?.email) {
       navigate('/todo');
-    } else if (location.pathname === '/todo' && !loggedInUser) {
+    } else if (location.pathname === '/todo' && !loggedInUser.email) {
       navigate('/login');
     }
   }, [location.pathname]);

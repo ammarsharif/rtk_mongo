@@ -1,55 +1,93 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   addTask,
+  setAllTasks,
   toggleComplete,
   updateTask,
 } from '../../features/reducer/taskReducer';
-import { logout, deleteUser } from '../../features/reducer/reducer';
+import { logout } from '../../features/reducer/reducer';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import AllListView from './AllListView';
-import { v4 as uuidv4 } from 'uuid';
+import axios from 'axios';
 
 const ListView = () => {
   const [task, setTask] = useState({
     description: '',
     id: '',
   });
+  const getTasks = async () => {
+    const response = await axios.get(`http://localhost:5000/tasks/tasks`);
+    console.log('RESPONSE DATA', response.data);
+    dispatch(setAllTasks(response.data));
+  };
+  useEffect(() => {
+    getTasks();
+  }, []);
   const user = useSelector((state) => state.user.loggedInUser);
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const uuid = uuidv4();
+
   const logoutHandler = (e) => {
     e.preventDefault();
     dispatch(logout());
     navigate('/login');
   };
 
-  const deleteHandler = (e) => {
+  const deleteHandler = async (e) => {
     e.preventDefault();
-    dispatch(deleteUser(user.userId));
+    try {
+      const response = await axios.delete(
+        `http://localhost:5000/users/delete?id=${user._id}`
+      );
+      console.log(response);
+    } catch (error) {
+      console.error('Error:', error);
+      alert('Error occurred while finding user');
+    }
     alert(`User ${user.email} is deleted`);
     dispatch(logout());
     navigate('/');
   };
   const data = useSelector((state) =>
-    state.UserTask.tasks.filter((task) => task.userId === user.userId)
+    state.UserTask.tasks.filter((task) => task.userId === user._id)
   );
-  const clickHandler = (e) => {
+  const submitHandler = async (e) => {
     e.preventDefault();
     const inputAsString = task.description.toString();
+    console.log(task);
     if (inputAsString.length > 0 && inputAsString.trim().length > 0) {
-      if (task.id) {
-        dispatch(updateTask({ description: inputAsString, id: task.id }));
-      } else {
-        dispatch(
-          addTask({
+      if (task._id) {
+        const response = await axios.put(
+          'http://localhost:5000/tasks/updateTask',
+          {
+            id: task._id,
             description: inputAsString,
-            id: uuid,
-            userId: user.userId,
-            completed: false,
-          })
+          }
         );
+        console.log(response);
+        // dispatch(updateTask({ description : inputAsString, id: task.id }));
+      } else {
+        const newTask = {
+          description: inputAsString,
+          userId: user._id,
+          completed: false,
+        };
+        try {
+          const response = await axios.post(
+            'http://localhost:5000/tasks/createNewTask',
+            newTask
+          );
+          if (response.status === 201) {
+            console.log(response.data);
+          } else {
+            console.error('Unexpected status code:', response.status);
+            alert('Error occurred while creating the task');
+          }
+        } catch (error) {
+          console.error('Error:', error);
+          alert('An error occurred while creating the task');
+        }
       }
       setTask({
         description: '',
@@ -65,7 +103,7 @@ const ListView = () => {
 
   return (
     <div className="container mt-5">
-      <h4>{user.name.toUpperCase()}</h4>
+      <h4>{user?.userName?.toUpperCase()}</h4>
       <nav className="navbar navbar-light bg-light">
         <form className="container-fluid justify-content-start">
           <button className="btn btn-danger" onClick={logoutHandler}>
@@ -80,7 +118,7 @@ const ListView = () => {
       <div className="row justify-content-center">
         <div className="col-md-6">
           <div className="input-group mb-3">
-            <form onSubmit={clickHandler} className=" d-flex col-12">
+            <form onSubmit={submitHandler} className=" d-flex col-12">
               <input
                 type="text"
                 value={task.description}

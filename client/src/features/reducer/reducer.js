@@ -14,10 +14,10 @@ const loginData = createSlice({
     },
     login: (state, action) => {
       state.loggedInUser = action.payload;
-      console.log(action.payload);
+      // console.log(action.payload);
     },
     logout: (state) => {
-      state.loggedInUser = {};
+      state.loggedInUser = null;
     },
     deleteUser: (state, action) => {
       const userIdToDelete = action.payload;

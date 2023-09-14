@@ -1,16 +1,14 @@
 import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { login, signUp } from '../../features/reducer/reducer';
 import { useNavigate } from 'react-router-dom';
-import { v4 as uuidv4 } from 'uuid';
-
+import axios from 'axios';
 const SignupView = () => {
   const dispatch = useDispatch();
   const users = useSelector((state) => state.user.users);
+  console.log(users);
   const initialState = { userName: '', email: '', pass: '' };
   const [user, setUser] = useState(initialState);
-  const uuid = uuidv4();
-
+  console.log(user);
   const navigate = useNavigate();
   const validateForm = () => {
     const validationErrors = {};
@@ -31,26 +29,37 @@ const SignupView = () => {
 
     return validationErrors;
   };
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     const validationErrors = validateForm();
 
     if (Object.keys(validationErrors).length === 0) {
       const matchingUser = users.find(
-        (currentUser) => currentUser.email === user.email
+        (currentUser) => currentUser?.email === user.email
       );
       const newUser = {
-        name: user.userName,
+        userName: user.userName,
         password: user.pass,
         email: user.email,
-        userId: uuid,
       };
-      if (!matchingUser) {
-        dispatch(signUp(newUser));
-        setUser(initialState);
-        navigate('/login');
-      } else {
-        alert('User Already exists');
+      console.log(newUser);
+      try {
+        const response = await axios.post(
+          'http://localhost:5000/users/createNewUser',
+          newUser
+        );
+        console.log(response);
+        if (response.status >= 200 && response.status < 300) {
+          alert('User created successfully');
+          navigate('/login');
+        }
+      } catch (error) {
+        if (matchingUser) {
+          alert('User Already Created');
+        } else {
+          console.error('Error:', error);
+          alert('An error occurred while creating the user');
+        }
       }
     } else {
       setErrors(validationErrors);
