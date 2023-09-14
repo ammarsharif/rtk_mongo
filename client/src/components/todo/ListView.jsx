@@ -18,7 +18,6 @@ const ListView = () => {
   });
   const getTasks = async () => {
     const response = await axios.get(`http://localhost:5000/tasks/tasks`);
-    console.log('RESPONSE DATA', response.data);
     dispatch(setAllTasks(response.data));
   };
   useEffect(() => {
@@ -40,7 +39,6 @@ const ListView = () => {
       const response = await axios.delete(
         `http://localhost:5000/users/delete?id=${user._id}`
       );
-      console.log(response);
     } catch (error) {
       console.error('Error:', error);
       alert('Error occurred while finding user');
@@ -55,7 +53,6 @@ const ListView = () => {
   const submitHandler = async (e) => {
     e.preventDefault();
     const inputAsString = task.description.toString();
-    console.log(task);
     if (inputAsString.length > 0 && inputAsString.trim().length > 0) {
       if (task._id) {
         const response = await axios.put(
@@ -140,7 +137,7 @@ const ListView = () => {
                   <li className="list-group-item" key={key}>
                     <AllListView
                       description={todo?.description}
-                      id={todo?.id}
+                      id={todo?._id}
                       input={task.description}
                       setInput={() => setTask(todo)}
                     />
@@ -148,14 +145,14 @@ const ListView = () => {
                     {todo.completed ? (
                       <button
                         className="badge bg-success rounded-pill"
-                        onClick={() => handleComplete(todo.id)}
+                        onClick={() => handleComplete(todo._id)}
                       >
                         Complete
                       </button>
                     ) : (
                       <button
                         className="badge bg-primary rounded-pill"
-                        onClick={() => handleComplete(todo.id)}
+                        onClick={() => handleComplete(todo._id)}
                       >
                         Incomplete
                       </button>
