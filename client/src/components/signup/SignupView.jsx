@@ -5,10 +5,8 @@ import axios from 'axios';
 const SignupView = () => {
   const dispatch = useDispatch();
   const users = useSelector((state) => state.user.users);
-  console.log(users);
   const initialState = { userName: '', email: '', pass: '' };
   const [user, setUser] = useState(initialState);
-  console.log(user);
   const navigate = useNavigate();
   const validateForm = () => {
     const validationErrors = {};
@@ -42,7 +40,6 @@ const SignupView = () => {
         password: user.pass,
         email: user.email,
       };
-      console.log(newUser);
       try {
         const response = await axios.post(
           'http://localhost:5000/users/createNewUser',

@@ -7,11 +7,9 @@ const AllListView = (props) => {
       const response = await axios.delete(
         `http://localhost:5000/tasks/deleteTask/${props.id}`
       );
-      console.log(response);
     } catch (error) {
       console.log(error);
     }
-    console.log(props.id);
   };
   const updateHandler = () => {
     props.setInput();
