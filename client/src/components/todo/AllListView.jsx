@@ -1,17 +1,11 @@
 import React from 'react';
-import { useDispatch } from 'react-redux';
-import { deleteTask } from '../../features/reducer/taskReducer';
 import { AiOutlineReload } from 'react-icons/ai';
 import axios from 'axios';
 const AllListView = (props) => {
-  const dispatch = useDispatch();
   const deleteTaskHandler = async () => {
     try {
-      const response = await axios.post(
-        'http://localhost:5000/tasks/deleteTask/:id={props.id}',
-        {
-          id: props.id,
-        }
+      const response = await axios.delete(
+        `http://localhost:5000/tasks/deleteTask/${props.id}`
       );
       console.log(response);
     } catch (error) {

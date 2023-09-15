@@ -17,8 +17,15 @@ const ListView = () => {
     id: '',
   });
   const getTasks = async () => {
-    const response = await axios.get(`http://localhost:5000/tasks/tasks`);
-    dispatch(setAllTasks(response.data));
+    try {
+      const userId = user._id;
+      const response = await axios.get(
+        `http://localhost:5000/tasks/getAllTasks?userId=${userId}`
+      );
+      dispatch(setAllTasks(response.data));
+    } catch (error) {
+      console.log(error);
+    }
   };
   useEffect(() => {
     getTasks();
@@ -47,9 +54,10 @@ const ListView = () => {
     dispatch(logout());
     navigate('/');
   };
-  const data = useSelector((state) =>
-    state.UserTask.tasks.filter((task) => task.userId === user._id)
-  );
+  // const data = useSelector((state) =>
+  //   state.UserTask.tasks.filter((task) => task.userId === user._id)
+  // );
+  const data = useSelector((state) => state.UserTask.tasks);
   const submitHandler = async (e) => {
     e.preventDefault();
     const inputAsString = task.description.toString();

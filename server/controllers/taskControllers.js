@@ -1,7 +1,6 @@
 const taskModel = require('../models/taskModels');
 const createNewTask = async (req, res) => {
   try {
-    console.log(req.body);
     const newTask = await taskModel.create(req.body);
     res.status(201).send(newTask);
   } catch (err) {
@@ -10,8 +9,9 @@ const createNewTask = async (req, res) => {
 };
 const getAllTask = async (req, res) => {
   try {
-    const allTasks = await taskModel.find();
-    res.status(200).send(allTasks);
+    const userId = req.query.userId;
+    const userTasks = await taskModel.find({ userId });
+    res.status(200).send(userTasks);
   } catch (err) {
     res.status(500).send(err);
   }
@@ -27,8 +27,7 @@ const updatedTask = async (req, res) => {
 };
 const deleteTask = async (req, res) => {
   try {
-    console.log('ID', req.body);
-    const id = req.body.id;
+    const id = req.params.id;
     const deletedTask = await taskModel.findByIdAndDelete(id);
     res.status(200).send(deletedTask);
   } catch (err) {
