@@ -20,8 +20,9 @@ const userTask = createSlice({
       }
     },
     updateTask: (state, action) => {
-      const { id, description } = action.payload;
-      const index = state.tasks.findIndex((item) => item.id === id);
+      const { _id, description } = action.payload;
+      const index = state.tasks.findIndex((item) => item._id === _id);
+      console.log(action.payload, index);
 
       if (index !== -1) {
         const updatedTask = { ...state.tasks[index], description };
