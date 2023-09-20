@@ -5,7 +5,7 @@ import { useDispatch } from 'react-redux';
 import { deletedTask } from '../../actions/todolist';
 const AllListView = (props) => {
   const dispatch = useDispatch();
-  const deleteTaskHandler = async () => {
+  const deleteTaskHandler = () => {
     dispatch(deletedTask(props.id));
   };
   const updateHandler = () => {
