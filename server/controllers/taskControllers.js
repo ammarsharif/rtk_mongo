@@ -1,5 +1,11 @@
 const taskModel = require('../models/taskModels');
+const jwtUtils = require('../utils/jwt');
 const createNewTask = async (req, res) => {
+  const isVerified = jwtUtils.verifyToken(req);
+  if (!isVerified) {
+    res.status(401).send({ error: 'Unauthorized' });
+    return;
+  }
   try {
     const newTask = await taskModel.create(req.body);
     res.status(201).send(newTask);
@@ -17,15 +23,43 @@ const getAllTask = async (req, res) => {
   }
 };
 const updatedTask = async (req, res) => {
+  const isVerified = jwtUtils.verifyToken(req);
+  if (!isVerified) {
+    res.status(401).send({ error: 'Unauthorized' });
+    return;
+  }
+
+  const { id, description } = req.body;
+
   try {
-    const id = req.body.id;
-    const updatedTask = await taskModel.findByIdAndUpdate(id, req.body);
+    // Assuming `taskModel` is a Mongoose model for tasks
+    const updatedTask = await taskModel.findByIdAndUpdate(
+      id,
+      { description },
+      { new: true }
+    );
+
+    if (!updatedTask) {
+      return res.status(404).send({ error: 'Task not found' });
+    }
+
     res.status(200).send(updatedTask);
-  } catch (err) {
-    res.status(500).send(err);
+  } catch (error) {
+    console.error('Error updating task:', error);
+    res
+      .status(500)
+      .send({ error: 'An error occurred while updating the task' });
   }
 };
+
+module.exports = { updatedTask };
+
 const deleteTask = async (req, res) => {
+  const isVerified = jwtUtils.verifyToken(req);
+  if (!isVerified) {
+    res.status(401).send({ error: 'Unauthorized' });
+    return;
+  }
   try {
     const id = req.params.id;
     const deletedTask = await taskModel.findByIdAndDelete(id);
@@ -36,22 +70,16 @@ const deleteTask = async (req, res) => {
 };
 const isCompleted = async (req, res) => {
   try {
-    const id = req.params.id;
-    const completedTask = await taskModel.findByIdAndUpdate(id, {
-      isCompleted: true,
-    });
-    res.status(200).send(completedTask);
-  } catch (err) {
-    res.status(500).send(err);
-  }
-};
-const isIncomplete = async (req, res) => {
-  try {
-    const id = req.params.id;
-    const incompletedTask = await taskModel.findByIdAndUpdate(id, {
-      isCompleted: false,
-    });
-    res.status(200).send(incompletedTask);
+    const id = req.body.id;
+    const task = await taskModel.findById(id);
+
+    if (!task) {
+      return res.status(404).send({ message: 'Task not found' });
+    }
+    task.completed = !task.completed;
+    await task.save();
+
+    res.status(200).send(task);
   } catch (err) {
     res.status(500).send(err);
   }
@@ -62,5 +90,4 @@ module.exports = {
   updatedTask,
   deleteTask,
   isCompleted,
-  isIncomplete,
 };

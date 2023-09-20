@@ -1,15 +1,12 @@
 import React from 'react';
 import { AiOutlineReload } from 'react-icons/ai';
 import axios from 'axios';
+import { useDispatch } from 'react-redux';
+import { deletedTask } from '../../actions/todolist';
 const AllListView = (props) => {
+  const dispatch = useDispatch();
   const deleteTaskHandler = async () => {
-    try {
-      const response = await axios.delete(
-        `http://localhost:5000/tasks/deleteTask/${props.id}`
-      );
-    } catch (error) {
-      console.log(error);
-    }
+    dispatch(deletedTask(props.id));
   };
   const updateHandler = () => {
     props.setInput();

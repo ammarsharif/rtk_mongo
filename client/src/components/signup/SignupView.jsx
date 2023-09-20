@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { signUp } from '../../features/reducer/reducer';
+import { createNewUser } from '../../actions/users';
 const SignupView = () => {
   const dispatch = useDispatch();
   const users = useSelector((state) => state.user.users);
@@ -32,32 +34,13 @@ const SignupView = () => {
     const validationErrors = validateForm();
 
     if (Object.keys(validationErrors).length === 0) {
-      const matchingUser = users.find(
-        (currentUser) => currentUser?.email === user.email
-      );
       const newUser = {
         userName: user.userName,
         password: user.pass,
         email: user.email,
       };
-      try {
-        const response = await axios.post(
-          'http://localhost:5000/users/createNewUser',
-          newUser
-        );
-        console.log(response);
-        if (response.status >= 200 && response.status < 300) {
-          alert('User created successfully');
-          navigate('/login');
-        }
-      } catch (error) {
-        if (matchingUser) {
-          alert('User Already Created');
-        } else {
-          console.error('Error:', error);
-          alert('An error occurred while creating the user');
-        }
-      }
+      dispatch(createNewUser(newUser));
+      navigate('/login');
     } else {
       setErrors(validationErrors);
     }

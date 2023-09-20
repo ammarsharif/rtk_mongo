@@ -1,34 +1,29 @@
 import React, { useEffect, useState } from 'react';
-import {
-  addTask,
-  setAllTasks,
-  toggleComplete,
-  updateTask,
-} from '../../features/reducer/taskReducer';
 import { logout } from '../../features/reducer/reducer';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import AllListView from './AllListView';
-import axios from 'axios';
+import { apiRequest } from '../../utils/axios';
+import {
+  addNewTask,
+  fetchTasks,
+  toggleCompleteTask,
+  updateYourTask,
+} from '../../actions/todolist';
+import { userDelete } from '../../actions/users';
 
 const ListView = () => {
   const [task, setTask] = useState({
     description: '',
     id: '',
+    completed: false,
   });
-  const getTasks = async () => {
-    try {
-      const userId = user._id;
-      const response = await axios.get(
-        `http://localhost:5000/tasks/getAllTasks?userId=${userId}`
-      );
-      dispatch(setAllTasks(response.data));
-    } catch (error) {
-      console.log(error);
-    }
+  const userId = useSelector((state) => state.user.loggedInUser?.id);
+  const getallTasks = () => {
+    dispatch(fetchTasks(userId));
   };
   useEffect(() => {
-    getTasks();
+    getallTasks();
   }, []);
   const user = useSelector((state) => state.user.loggedInUser);
   const dispatch = useDispatch();
@@ -42,57 +37,24 @@ const ListView = () => {
 
   const deleteHandler = async (e) => {
     e.preventDefault();
-    try {
-      const response = await axios.delete(
-        `http://localhost:5000/users/delete?id=${user._id}`
-      );
-    } catch (error) {
-      console.error('Error:', error);
-      alert('Error occurred while finding user');
-    }
     alert(`User ${user.email} is deleted`);
-    dispatch(logout());
+    dispatch(userDelete(user.id));
     navigate('/');
   };
-  // const data = useSelector((state) =>
-  //   state.UserTask.tasks.filter((task) => task.userId === user._id)
-  // );
   const data = useSelector((state) => state.UserTask.tasks);
   const submitHandler = async (e) => {
     e.preventDefault();
     const inputAsString = task.description.toString();
     if (inputAsString.length > 0 && inputAsString.trim().length > 0) {
       if (task._id) {
-        const response = await axios.put(
-          'http://localhost:5000/tasks/updateTask',
-          {
-            id: task._id,
-            description: inputAsString,
-          }
-        );
-        console.log(response);
-        // dispatch(updateTask({ description : inputAsString, id: task.id }));
+        dispatch(updateYourTask({ id: task._id, description: inputAsString }));
       } else {
         const newTask = {
           description: inputAsString,
           userId: user._id,
           completed: false,
         };
-        try {
-          const response = await axios.post(
-            'http://localhost:5000/tasks/createNewTask',
-            newTask
-          );
-          if (response.status === 201) {
-            console.log(response.data);
-          } else {
-            console.error('Unexpected status code:', response.status);
-            alert('Error occurred while creating the task');
-          }
-        } catch (error) {
-          console.error('Error:', error);
-          alert('An error occurred while creating the task');
-        }
+        dispatch(addNewTask({ ...newTask, userId }));
       }
       setTask({
         description: '',
@@ -103,7 +65,7 @@ const ListView = () => {
     }
   };
   const handleComplete = (id) => {
-    dispatch(toggleComplete(id));
+    dispatch(toggleCompleteTask({ id }));
   };
 
   return (
@@ -150,7 +112,7 @@ const ListView = () => {
                       setInput={() => setTask(todo)}
                     />
 
-                    {todo.completed ? (
+                    {todo?.completed ? (
                       <button
                         className="badge bg-success rounded-pill"
                         onClick={() => handleComplete(todo._id)}

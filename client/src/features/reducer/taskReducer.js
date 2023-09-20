@@ -10,7 +10,14 @@ const userTask = createSlice({
       state.tasks = action.payload;
     },
     addTask: (state, action) => {
-      state.tasks.push(action.payload);
+      const existingTask = state.tasks.find(
+        (task) => task._id === action.payload._id
+      );
+      if (!existingTask) {
+        state.tasks.push(action.payload);
+      } else {
+        Object.assign(existingTask, action.payload);
+      }
     },
     updateTask: (state, action) => {
       const { id, description } = action.payload;

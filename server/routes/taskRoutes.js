@@ -6,13 +6,11 @@ const {
   updatedTask,
   deleteTask,
   isCompleted,
-  isIncomplete,
 } = require('../controllers/taskControllers');
 
 router.post('/createNewTask', createNewTask);
 router.delete('/deleteTask/:id', deleteTask);
-router.put('/completedTask', isCompleted);
-router.put('/iscompletedTask', isIncomplete);
+router.put('/isCompleted', isCompleted);
 router.put('/updateTask', updatedTask);
 router.get('/getAllTasks', getAllTask);
 

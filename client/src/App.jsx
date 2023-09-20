@@ -13,10 +13,10 @@ function App() {
   useEffect(() => {
     if (location.pathname === '/login' && loggedInUser?.email) {
       navigate('/todo');
-    } else if (location.pathname === '/todo' && !loggedInUser.email) {
+    } else if (location.pathname === '/todo' && !loggedInUser?.email) {
       navigate('/login');
     }
-  }, [location.pathname]);
+  }, [location.pathname, loggedInUser]);
   return (
     <div className="App">
       <div>
