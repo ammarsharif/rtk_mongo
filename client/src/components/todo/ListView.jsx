@@ -3,7 +3,6 @@ import { logout } from '../../features/reducer/reducer';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import AllListView from './AllListView';
-import { apiRequest } from '../../utils/axios';
 import {
   addNewTask,
   fetchTasks,
@@ -51,7 +50,7 @@ const ListView = () => {
       } else {
         const newTask = {
           description: inputAsString,
-          userId: user._id,
+          userId: user.id,
           completed: false,
         };
         dispatch(addNewTask({ ...newTask, userId }));
